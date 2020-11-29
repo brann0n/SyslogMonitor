@@ -44,7 +44,7 @@ namespace SyslogMonitor
             CalledStop = false;
             try
             {
-                Console.WriteLine($"Syslog Listener started...");
+                BConsole.WriteLine($"Syslog Listener started...");
                 while (!CalledStop)
                 {
                     byte[] bits = server.Receive(ref endpointUDP);
@@ -70,13 +70,13 @@ namespace SyslogMonitor
             }
             catch (SocketException e)
             {
-                Console.WriteLine("SocketException: {0}", e.Message);
+                BConsole.WriteLine($"Exception: {e.Message}");
             }
             catch (Exception e)
             {
-                Console.WriteLine("Exception: {0}", e.Message);
+                BConsole.WriteLine($"Exception: {e.Message}");
             }
-            Console.WriteLine("Service stopped!");
+            BConsole.WriteLine("Service stopped!");
             return Task.CompletedTask;
         }
 
@@ -96,7 +96,7 @@ namespace SyslogMonitor
         {
             CalledStop = true;
             server.Close();
-            Console.WriteLine("Telling service to stop...");
+            BConsole.WriteLine("Telling service to stop...");
         }
     }
 }

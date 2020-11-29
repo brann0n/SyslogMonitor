@@ -11,15 +11,10 @@ namespace SyslogMonitor.ConnectionManager
 {
     class NetworkScanner
     {
-        public NetworkScanner()
-        {
-
-        }
-
-        public List<DeviceInfo> GetDevices()
+        public static List<DeviceInfo> GetDevices()
         {
             string devices = GetArpList();
-            string[] lines = devices.Split("\r\n");
+            string[] lines = devices.Split(new[] { '\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
             List<DeviceInfo> returnList = new List<DeviceInfo>();
 
             foreach (string line in lines)
@@ -38,7 +33,7 @@ namespace SyslogMonitor.ConnectionManager
             return returnList;
         }
 
-        private string GetArpList()
+        private static string GetArpList()
         {
             var escapedArgs = "arp -a";
 
@@ -46,6 +41,7 @@ namespace SyslogMonitor.ConnectionManager
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
+                escapedArgs = "arp-scan --interface=eth0 --localnet";
                 info = new ProcessStartInfo
                 {
                     FileName = "/bin/bash",
@@ -73,9 +69,10 @@ namespace SyslogMonitor.ConnectionManager
                 StartInfo = info
             };
 
-            process.Start();
-            string result = process.StandardOutput.ReadToEnd();
+            process.Start();       
             process.WaitForExit();
+            string result = process.StandardOutput.ReadToEnd();
+            BConsole.WriteLine(result, ConsoleColor.Red);
             return result;
         }
     }

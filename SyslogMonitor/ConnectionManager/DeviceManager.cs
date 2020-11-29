@@ -8,20 +8,27 @@ namespace SyslogMonitor.ConnectionManager
 {
     public class DeviceManager
     {
-        private List<DeviceInfo> Devices;
+        private readonly List<DeviceInfo> Devices;
+
         public DeviceManager()
         {
             Devices = new List<DeviceInfo>();
         }
+        public List<DeviceInfo> GetDevices() => Devices;
 
         public void AddDevices(List<DeviceInfo> deviceInfos)
         {
             foreach(DeviceInfo device in deviceInfos)
             {
-                DeviceInfo fndDevice = GetDeviceInfo(device.DeviceMac);
+                string mac = device.DeviceMac.Replace("-", ":").Replace(" ", "").ToLower();
+                string deviceId = Convert.ToBase64String(Encoding.Default.GetBytes(mac));
+                Console.WriteLine("ByteData: "+ deviceId);
+
+                DeviceInfo fndDevice = GetDeviceInfo(mac);
                 if(fndDevice == null)
-                {
-                    Devices.Add(new DeviceInfo { DeviceMac = device.DeviceMac.ToLower(), DeviceIp = device.DeviceIp, DeviceConnected = false });
+                {                   
+                    Devices.Add(new DeviceInfo {DeviceId = deviceId, DeviceMac = mac, DeviceIp = device.DeviceIp, DeviceConnected = false });
+                    BConsole.WriteLine($"Added device {mac} {device.DeviceIp}");
                 }
                 else
                 {
@@ -32,26 +39,32 @@ namespace SyslogMonitor.ConnectionManager
 
         public void UpdateDeviceStatus(string mac, bool connected)
         {
-            var device = GetDeviceInfo(mac);
+            mac = mac.Replace("-", ":").ToLower();
+            string deviceId = Convert.ToBase64String(Encoding.Default.GetBytes(mac));
+            Console.WriteLine("ByteData: " + deviceId);
+            DeviceInfo device = GetDeviceInfo(mac);
             if(device == null)
             {
-                Devices.Add(new DeviceInfo {DeviceMac = mac.ToLower(), DeviceConnected = connected });
+                device = new DeviceInfo { DeviceId = deviceId, DeviceMac = mac, DeviceConnected = connected };
+                Devices.Add(device);
+                BConsole.WriteLine($"Added device {mac} {device.DeviceIp}");
             }
             else
             {
-                device.DeviceConnected = connected;
-                Console.WriteLine(device);
+                device.DeviceConnected = connected;               
             }
+            device.LastUpdate = DateTime.Now;
+            BConsole.WriteLine(device.ToString());
         }
 
         public DeviceInfo GetDeviceInfo(string mac)
         {
             return Devices.FirstOrDefault(n => n.DeviceMac == mac.ToLower());
-        }
+        }     
 
         public void PrintAllDevices()
         {
-            foreach (DeviceInfo d in Devices) Console.WriteLine(d);          
+            foreach (DeviceInfo d in Devices) BConsole.WriteLine(d.ToString());          
         }
     }
 }
