@@ -42,8 +42,8 @@ namespace SyslogMonitor.ConnectionManager
                 }
                 else
                 {
-                    fndDevice.DeviceIp = device.DeviceIp;
-                    fndDevice.DeviceName = device.DeviceName;
+                    fndDevice.DeviceIp = device.DeviceIp ?? fndDevice.DeviceIp;
+                    fndDevice.DeviceName = device.DeviceName ?? fndDevice.DeviceName;
                     DB.UpdateDeviceAsync(fndDevice).Wait();
                     BConsole.WriteLine($"Updated device {mac} {fndDevice.DeviceIp}");
                 }
@@ -64,10 +64,10 @@ namespace SyslogMonitor.ConnectionManager
             }
             else
             {
-                device.DeviceConnected = connected;                
-            }
-            device.LastUpdate = DateTime.Now;
-            DB.UpdateDeviceAsync(device).Wait();
+                device.DeviceConnected = connected;
+                device.LastUpdate = DateTime.Now;
+                DB.UpdateDeviceAsync(device).Wait();
+            }        
             if(display)
             BConsole.WriteLine(device.ToString());
         }

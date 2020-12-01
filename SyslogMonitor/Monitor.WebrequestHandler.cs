@@ -19,6 +19,7 @@ namespace SyslogMonitor
                 "api" => ParseApiSegments(urlSegments, method, api_key, data),
                 "styles" => Css(urlSegments[1].ToLower()),
                 "scripts" => JS(urlSegments[1].ToLower()),
+                "ip" => GetIpAddress(data),
                 "pages" => Page(urlSegments[1].ToLower()),
                 _ => new HttpResponseModel
                 {
@@ -70,7 +71,20 @@ namespace SyslogMonitor
                 },
             };
         }
-
+        internal HttpResponseModel GetIpAddress(string ip)
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.Append("<!DOCTYPE html><html><head><title>Get IpAddress</title><link href=\"/styles/index\" rel=\"stylesheet\"/></head><body>");
+            builder.Append("<div>");
+            builder.Append($"<h3>This is your ip address: {ip}</h3>");
+            builder.Append("</div></body></html>");
+            return new HttpResponseModel
+            {
+                StatusCode = 200,
+                ContentType = "text/html",
+                OutputStream = builder.ToString()
+            };
+        }
         internal HttpResponseModel ApiDevice(string[] urlSegments, string method, string data)
         {
             string deviceId = (urlSegments.Length >= 3) ? urlSegments[2] : "";
@@ -93,7 +107,11 @@ namespace SyslogMonitor
                     {
                         if(device.DeviceId == deviceId)
                         {
-                            Manager.AddDevices(new List<DeviceInfo> { device });
+                            DeviceInfo currentDevice = Manager.GetDeviceById(deviceId);
+                            currentDevice.DeviceName = device.DeviceName;
+                            DB.UpdateDeviceAsync(currentDevice).Wait();
+                            BConsole.WriteLine($"Updated device {deviceId} in DB!");
+                            return new HttpResponseModel { StatusCode = 200, StatusDescription = "Updated device in DB" };
                         }
                     }
                     return new HttpResponseModel { StatusCode = 500, StatusDescription = "Data object incorrect" };

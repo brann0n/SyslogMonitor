@@ -8,11 +8,11 @@ body {
 }
 
 td {
-    padding: 5px 20px;
+    padding: 5px 10px;
 }
 
 th {
-    padding: 5px 40px;
+    padding: 5px 10px;
 }
 
 table {
@@ -21,17 +21,18 @@ table {
     border: 1px solid grey;
 }
 
-tr:first-child {
+table>tr:first-child,
+thead>tr:first-child {
     border: 1px solid black;
-    background-color: #ff02023b;
+    background-color: #02e7ff78;
 }
 
-tr:not(:first-child):hover {
+tbody>tr:hover {
     background-color: #0000ff40;
 }
 
 .MainBox {
-    max-width: 600px;
+    max-width: 800px;
     margin: auto;
 }
 
@@ -61,4 +62,12 @@ tr:not(:first-child):hover {
 .content {
     border-top: 2px solid black;
     border-bottom: 2px solid black;
+}
+
+.connected {
+    background-color: #00800063;
+}
+
+.disconnected {
+    background-color: #e63a3ab5;
 }

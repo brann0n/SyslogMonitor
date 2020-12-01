@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>Devices | Wifi Monitoring</title>
+    <title>Log | Wifi Monitoring</title>
     <link href="/styles/index" rel="stylesheet" />
     <script src="/scripts/updatedevices"></script>
 </head>
@@ -22,31 +22,11 @@
         </div>
         <div class="content">
             <p>
-                On this page you can find a live updating table with connected devices.
+                On this page you can find the live updating log.
             </p>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Device Name</th>
-                        <th>Device MAC</th>
-                        <th>Device IP</th>
-                        <th>Device Last Updated</th>
-                        <th>Device Connected</th>
-                        <th>Edit</th>
-                    </tr>
-                </thead>
-                <tbody id="deviceTable">
-
-                </tbody>
-            </table>
         </div>
     </div>
-    <script>
-        getDeviceData();
-        setInterval(function() {
-            getDeviceData();
-        }, 2000);
-    </script>
+
 </body>
 
 </html>

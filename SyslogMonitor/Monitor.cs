@@ -57,7 +57,7 @@ namespace SyslogMonitor
                     }
                     else
                     {
-                        return Parse(urlSegments, request.HttpMethod, request.Headers["API_KEY"] ?? "", "");
+                        return Parse(urlSegments, request.HttpMethod, request.Headers["API_KEY"] ?? "", request.RemoteEndPoint.Address.ToString());
                     }
                 }
                 else
