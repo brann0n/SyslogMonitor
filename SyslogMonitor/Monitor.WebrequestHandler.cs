@@ -17,9 +17,9 @@ namespace SyslogMonitor
             {
                 "devices" => Devices(),
                 "api" => ParseApiSegments(urlSegments, method, api_key, data),
-                "styles" => Css(urlSegments[1]),
-                "scripts" => JS(urlSegments[1]),
-                "pages" => Page(urlSegments[1]),
+                "styles" => Css(urlSegments[1].ToLower()),
+                "scripts" => JS(urlSegments[1].ToLower()),
+                "pages" => Page(urlSegments[1].ToLower()),
                 _ => new HttpResponseModel
                 {
                     StatusCode = 404,
