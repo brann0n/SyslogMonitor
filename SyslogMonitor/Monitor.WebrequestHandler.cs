@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using SyslogMonitor.ConnectionManager;
 using SyslogMonitor.Webserver;
 using System;
 using System.Collections.Generic;
@@ -31,12 +32,14 @@ namespace SyslogMonitor
         {
             var deviceList = Manager.GetDevices();
             StringBuilder builder = new StringBuilder();
-            builder.Append("<ul>");
+            builder.Append("<!DOCTYPE html><html><head><title>Wifi Devices</title><link href=\"/styles/index\" rel=\"stylesheet\"/></head><body>");
+            builder.Append("<table>");
+            builder.Append("<tr><th>Device Name</th><th>Device MAC</th><th>Device IP</th><th>Connected</th><th>Last Update</th></tr>");
             foreach (var device in deviceList)
             {
-                builder.Append($"<li>{device}</li>");
+                builder.Append($"<tr><td>{device.DeviceName}</td><td>{device.DeviceMac}</td><td>{device.DeviceIp}</td><td>{device.DeviceConnected}</td><td>{device.LastUpdate}</td></tr>");
             }
-            builder.Append("</ul>");
+            builder.Append("</table></body></html>");
             return new HttpResponseModel
             {
                 StatusCode = 200,
@@ -51,19 +54,16 @@ namespace SyslogMonitor
             if (api_key != "dit-is-een-api-key") //cors allows this to only be used from the same domain :))))
                 return new HttpResponseModel { StatusCode = 401, StatusDescription = "Invalid apikey" };
 
-            //id the target for this request
-            string channelId = (urlSegments.Length >= 3) ? urlSegments[2] : "";
-            if (string.IsNullOrEmpty(channelId) && urlSegments[1].ToLower() != "clients")
-                return new HttpResponseModel { StatusCode = 500, StatusDescription = "No channelid provided" };
 
             return (urlSegments[1].ToLower()) switch
             {
-                "clients" => new HttpResponseModel
+                "devices" => new HttpResponseModel
                 {
                     StatusCode = 200,
                     ContentType = "application/json",
                     OutputStream = JsonConvert.SerializeObject(Manager.GetDevices())
                 },
+                "device" => ApiDevice(urlSegments, method, data),
                 _ => new HttpResponseModel
                 {
                     StatusCode = 404
@@ -71,6 +71,39 @@ namespace SyslogMonitor
             };
         }
 
+        internal HttpResponseModel ApiDevice(string[] urlSegments, string method, string data)
+        {
+            string deviceId = (urlSegments.Length >= 3) ? urlSegments[2] : "";
+            if (string.IsNullOrEmpty(deviceId) && urlSegments[1].ToLower() != "device")
+                return new HttpResponseModel { StatusCode = 500, StatusDescription = "Device id not provided" };
+
+            switch (method)
+            {
+                case "GET":
+                    return new HttpResponseModel
+                    {
+                        StatusCode = 200,
+                        ContentType = "application/json",
+                        OutputStream = JsonConvert.SerializeObject(Manager.GetDeviceById(deviceId))
+                    };
+                case "POST":
+                    //do an update
+                    DeviceInfo device = JsonConvert.DeserializeObject<DeviceInfo>(data);
+                    if(device != null)
+                    {
+                        if(device.DeviceId == deviceId)
+                        {
+                            Manager.AddDevices(new List<DeviceInfo> { device });
+                        }
+                    }
+                    return new HttpResponseModel { StatusCode = 500, StatusDescription = "Data object incorrect" };
+                default:
+                    return new HttpResponseModel()
+                    {
+                        StatusCode = 405
+                    };
+            }
+        }
 
         internal HttpResponseModel Page(string page)
         {

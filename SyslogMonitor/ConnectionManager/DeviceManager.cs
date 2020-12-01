@@ -31,12 +31,11 @@ namespace SyslogMonitor.ConnectionManager
             {
                 string mac = device.DeviceMac.Replace("-", ":").Replace(" ", "").ToLower();
                 string deviceId = Convert.ToBase64String(Encoding.Default.GetBytes(mac));
-                Console.WriteLine("ByteData: "+ deviceId);
 
-                DeviceInfo fndDevice = GetDeviceInfo(mac);
+                DeviceInfo fndDevice = GetDeviceById(deviceId);
                 if(fndDevice == null)
                 {
-                    fndDevice = new DeviceInfo { DeviceId = deviceId, DeviceMac = mac, DeviceIp = device.DeviceIp, DeviceConnected = device.DeviceConnected, LastUpdate = DateTime.Now};
+                    fndDevice = new DeviceInfo { DeviceName = device.DeviceName, DeviceId = deviceId, DeviceMac = mac, DeviceIp = device.DeviceIp, DeviceConnected = device.DeviceConnected, LastUpdate = DateTime.Now};
                     Devices.Add(fndDevice);
                     DB.AddDeviceAsync(fndDevice).Wait();
                     BConsole.WriteLine($"Added device {mac} {fndDevice.DeviceIp}");
@@ -44,16 +43,17 @@ namespace SyslogMonitor.ConnectionManager
                 else
                 {
                     fndDevice.DeviceIp = device.DeviceIp;
+                    fndDevice.DeviceName = device.DeviceName;
                     DB.UpdateDeviceAsync(fndDevice).Wait();
+                    BConsole.WriteLine($"Updated device {mac} {fndDevice.DeviceIp}");
                 }
             }          
         }
 
-        public void UpdateDeviceStatus(string mac, bool connected)
+        public void UpdateDeviceStatus(string mac, bool connected, bool display)
         {
             mac = mac.Replace("-", ":").ToLower();
             string deviceId = Convert.ToBase64String(Encoding.Default.GetBytes(mac));
-            Console.WriteLine("ByteData: " + deviceId);
             DeviceInfo device = GetDeviceInfo(mac);
             if(device == null)
             {
@@ -68,6 +68,7 @@ namespace SyslogMonitor.ConnectionManager
             }
             device.LastUpdate = DateTime.Now;
             DB.UpdateDeviceAsync(device).Wait();
+            if(display)
             BConsole.WriteLine(device.ToString());
         }
 
@@ -75,6 +76,11 @@ namespace SyslogMonitor.ConnectionManager
         {
             return Devices.FirstOrDefault(n => n.DeviceMac == mac.ToLower());
         }     
+
+        public DeviceInfo GetDeviceById(string id)
+        {
+            return Devices.FirstOrDefault(n => n.DeviceId == id);
+        }
 
         public void PrintAllDevices()
         {

@@ -98,7 +98,7 @@ namespace SyslogMonitor
                     else
                     {
                         timer = 0;
-                        var devices = NetworkScanner.GetDevices();
+                        var devices = NetworkScanner.GetDevices(Config.GetDisplay());
                         Manager.AddDevices(devices);
                     }
                 }
@@ -114,17 +114,17 @@ namespace SyslogMonitor
         }
 
 
-        private void L_ConnectionChanged(string connectionState)
+        private void L_ConnectionChanged(string connectionState, DataReceivedObject rObject)
         {
             string[] split = connectionState.Split(' ');
             string mac = split[0];
             switch (split.Last())
             {
                 case "connected":
-                    Manager.UpdateDeviceStatus(mac, true);
+                    Manager.UpdateDeviceStatus(mac, true, Config.GetDisplay());
                     break;
                 case "disconnected":
-                    Manager.UpdateDeviceStatus(mac, false);
+                    Manager.UpdateDeviceStatus(mac, false, Config.GetDisplay());
                     break;
                 default:
                     throw new Exception("Did not understand connection state.");

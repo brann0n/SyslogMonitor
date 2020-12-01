@@ -8,29 +8,27 @@ using System.Threading.Tasks;
 
 namespace SyslogMonitor
 {
-    public delegate void SyslogConnectionMessageHandler(string connectionState);
+    public delegate void SyslogConnectionMessageHandler(string connectionState, DataReceivedObject rObject);
 
     public class SyslogListener
     {
-        UdpClient server;
-        IPEndPoint endpointUDP;
-        public DateTime lastReceiveTime;
+        private readonly UdpClient Server;
+        IPEndPoint UdpEndpoint;
+        public DateTime LastReceiveTime;
         private bool CalledStop;
-        private string PCIP;
 
         public event SyslogConnectionMessageHandler ConnectionChanged;
 
         public SyslogListener(string ipAdress, int port)
         {
             //init vars
-            lastReceiveTime = new DateTime();
+            LastReceiveTime = new DateTime();
             CalledStop = false;
-            PCIP = ipAdress;
 
             //init connection objects for later use.
             IPAddress localAddr = IPAddress.Parse(ipAdress);
-            endpointUDP = new IPEndPoint(localAddr, port);
-            server = new UdpClient(endpointUDP);
+            UdpEndpoint = new IPEndPoint(localAddr, port);
+            Server = new UdpClient(UdpEndpoint);
         }
 
         /// <summary>
@@ -47,14 +45,13 @@ namespace SyslogMonitor
                 BConsole.WriteLine($"Syslog Listener started...");
                 while (!CalledStop)
                 {
-                    byte[] bits = server.Receive(ref endpointUDP);
+                    byte[] bits = Server.Receive(ref UdpEndpoint);
                     string response = Encoding.ASCII.GetString(bits, 0, bits.Length);
                     DataReceivedObject receiv = new DataReceivedObject
                     {
                         Data = response.Replace("\n", ""),
-                        IPAddress = endpointUDP.Address.ToString(),
-                        ReceivedDateTime = DateTime.Now,
-                        Timestamp = "<<Timestamp>>"
+                        IPAddress = UdpEndpoint.Address.ToString(),
+                        ReceivedDateTime = DateTime.Now
                     };
 
                     var validRule = SyslogFilters.CheckConnectionState(receiv.Data);
@@ -62,10 +59,10 @@ namespace SyslogMonitor
                     //this item is a connection log
                     if (validRule.Item1)
                     {
-                        ConnectionChanged?.Invoke(validRule.Item2);
+                        ConnectionChanged?.Invoke(validRule.Item2, receiv);
                     }
 
-                    lastReceiveTime = DateTime.Now;
+                    LastReceiveTime = DateTime.Now;
                 }
             }
             catch (SocketException e)
@@ -95,7 +92,7 @@ namespace SyslogMonitor
         public void Stop()
         {
             CalledStop = true;
-            server.Close();
+            Server.Close();
             BConsole.WriteLine("Telling service to stop...");
         }
     }

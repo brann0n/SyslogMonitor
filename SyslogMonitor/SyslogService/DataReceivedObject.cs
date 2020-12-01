@@ -11,7 +11,5 @@ namespace SyslogMonitor
         public string IPAddress { get; set; }
         public DateTime ReceivedDateTime { get; set; }
         public string Data { get; set; }
-        public string Timestamp { get; set; }
-
     }
 }

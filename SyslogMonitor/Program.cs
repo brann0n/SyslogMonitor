@@ -5,6 +5,6 @@ namespace SyslogMonitor
 {
     class Program
     {
-        static void Main(string[] args) => new Monitor().Start().GetAwaiter().GetResult();
+        static void Main() => new Monitor().Start().GetAwaiter().GetResult();
     }
 }

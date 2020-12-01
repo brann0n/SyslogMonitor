@@ -11,9 +11,9 @@ namespace SyslogMonitor.ConnectionManager
 {
     class NetworkScanner
     {
-        public static List<DeviceInfo> GetDevices()
+        public static List<DeviceInfo> GetDevices(bool output)
         {
-            string devices = GetArpList();
+            string devices = GetArpList(output);
             string[] lines = devices.Split(new[] { '\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
             List<DeviceInfo> returnList = new List<DeviceInfo>();
 
@@ -33,7 +33,7 @@ namespace SyslogMonitor.ConnectionManager
             return returnList;
         }
 
-        private static string GetArpList()
+        private static string GetArpList(bool output)
         {
             var escapedArgs = "arp -a";
 
@@ -72,6 +72,7 @@ namespace SyslogMonitor.ConnectionManager
             process.Start();       
             process.WaitForExit();
             string result = process.StandardOutput.ReadToEnd();
+            if(output)
             BConsole.WriteLine(result, ConsoleColor.Red);
             return result;
         }
