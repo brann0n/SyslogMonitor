@@ -100,6 +100,10 @@ namespace SyslogMonitor.Webserver
                     response.OutputStream.Write(buffer, 0, buffer.Length);
                     response.OutputStream.Close();
                 }
+                else
+                {
+                    response.KeepAlive = false;
+                }
 
                 response.Close();
             }

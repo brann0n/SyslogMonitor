@@ -9,6 +9,7 @@ using System.Net;
 using System.Threading;
 using SyslogMonitor.Webserver;
 using System.IO;
+using SyslogMonitor.Database;
 
 namespace SyslogMonitor
 {
@@ -17,6 +18,8 @@ namespace SyslogMonitor
         private readonly ConfigReader Config;
         private readonly SyslogListener Listener;
         private readonly DeviceManager Manager;
+        private readonly DatabaseContext DB;
+        private bool StopCalled = false;
         private Server httpServer;
         public Monitor()
         {
@@ -24,7 +27,8 @@ namespace SyslogMonitor
             Manager = new DeviceManager();
             Listener = new SyslogListener(Config.GetIp(), Config.GetPort());
             Listener.ConnectionChanged += L_ConnectionChanged;
-            
+            DB = new DatabaseContext();
+
             new Thread(async delegate ()
             {
                 httpServer = new Server(Config.GetIp(), "http", 7000);
@@ -40,6 +44,7 @@ namespace SyslogMonitor
             {
                 string[] urlSegments = request.RawUrl.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
                 if (urlSegments.Length != 0)
+                {
                     if (request.HttpMethod == "POST")
                     {
                         string bodyData;
@@ -54,27 +59,49 @@ namespace SyslogMonitor
                     {
                         return Parse(urlSegments, request.HttpMethod, request.Headers["API_KEY"] ?? "", "");
                     }
+                }
+                else
+                {
+                    return Page("Index");
+                }
+
+            }
+            catch (FileNotFoundException fnf)
+            {
+                return new HttpResponseModel { StatusCode = 404, StatusDescription = fnf.Message };
             }
             catch (Exception ex)
             {
                 return new HttpResponseModel { StatusCode = 500, StatusDescription = ex.Message };
             }
-            return new HttpResponseModel
-            {
-                StatusCode = 200,
-                ContentType = "text/html",
-                OutputStream = "yuh"
-            };
         }
 
         public async Task Start()
         {
             BConsole.WriteLine("NetworkMonitor v1.0");
+            await Manager.Init();
 
-            new Thread(delegate () 
-            { 
-                var devices = NetworkScanner.GetDevices();
-                Manager.AddDevices(devices);
+            new Thread(delegate ()
+            {
+                int minutes = 10;
+                int interval = 1000;
+                int IntervalMax = minutes * 1000 * 60;
+                int timer = IntervalMax;
+                while (!StopCalled)
+                {
+                    if (timer % interval != 0 || timer > IntervalMax) break;
+                    if (timer < IntervalMax)
+                    {
+                        Thread.Sleep(interval);
+                        timer += interval;
+                    }
+                    else
+                    {
+                        timer = 0;
+                        var devices = NetworkScanner.GetDevices();
+                        Manager.AddDevices(devices);
+                    }
+                }
             }).Start();
 
             await Listener.Start();
@@ -82,6 +109,7 @@ namespace SyslogMonitor
 
         public void Stop()
         {
+            StopCalled = true;
             Listener.Stop();
         }
 

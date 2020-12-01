@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SyslogMonitor.Database;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,6 +18,19 @@ namespace SyslogMonitor.ConnectionManager
         public override string ToString()
         {
             return $"Device {DeviceMac}: ({DeviceIp}) Connected = {DeviceConnected}, Since {LastUpdate:dd-MM-yyyy HH:mm:ss}";
+        }
+
+        public static implicit operator DeviceInfo(DbDevice device)
+        {
+            return new DeviceInfo
+            {
+                DeviceConnected = device.Connected,
+                DeviceId = $"{device.Id}",
+                DeviceIp = device.DeviceIp,
+                DeviceMac = device.DeviceMac,
+                DeviceName = device.Name,
+                LastUpdate = device.LastUpdated
+            };
         }
     }
 }

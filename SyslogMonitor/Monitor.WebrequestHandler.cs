@@ -16,9 +16,13 @@ namespace SyslogMonitor
             {
                 "devices" => Devices(),
                 "api" => ParseApiSegments(urlSegments, method, api_key, data),
+                "styles" => Css(urlSegments[1]),
+                "scripts" => JS(urlSegments[1]),
+                "pages" => Page(urlSegments[1]),
                 _ => new HttpResponseModel
                 {
-                    StatusCode = 404
+                    StatusCode = 404,
+                    StatusDescription = "Undefined url path"
                 },
             };
         }
@@ -28,7 +32,7 @@ namespace SyslogMonitor
             var deviceList = Manager.GetDevices();
             StringBuilder builder = new StringBuilder();
             builder.Append("<ul>");
-            foreach(var device in deviceList)
+            foreach (var device in deviceList)
             {
                 builder.Append($"<li>{device}</li>");
             }
@@ -64,6 +68,37 @@ namespace SyslogMonitor
                 {
                     StatusCode = 404
                 },
+            };
+        }
+
+
+        internal HttpResponseModel Page(string page)
+        {
+            return new HttpResponseModel
+            {
+                StatusCode = 200,
+                ContentType = "text/html",
+                OutputStream = LocalfileHelper.GetFileContent(page, LocalfileHelper.FileType.Html)
+            };
+        }
+
+        internal HttpResponseModel Css(string style)
+        {
+            return new HttpResponseModel
+            {
+                StatusCode = 200,
+                ContentType = "text/css",
+                OutputStream = LocalfileHelper.GetFileContent(style, LocalfileHelper.FileType.Css)
+            };
+        }
+
+        internal HttpResponseModel JS(string script)
+        {
+            return new HttpResponseModel
+            {
+                StatusCode = 200,
+                ContentType = "text/javascript",
+                OutputStream = LocalfileHelper.GetFileContent(script, LocalfileHelper.FileType.Js)
             };
         }
     }
