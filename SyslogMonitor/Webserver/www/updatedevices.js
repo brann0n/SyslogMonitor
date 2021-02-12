@@ -27,12 +27,14 @@ function getDeviceData() {
             let deviceConnected = devices[device].DeviceConnected;
             let deviceName = devices[device].DeviceName;
             let deviceLastUpdated = new Date(devices[device].LastUpdate);
+            let connectionHost = devices[device].Host;
             parsedDeviceList.push({
                 DeviceName: deviceName,
                 DeviceMac: deviceMac,
                 DeviceIp: deviceIp,
                 DeviceLastUpdated: deviceLastUpdated.toLocaleString("nl-NL"),
                 DeviceConnected: deviceConnected,
+                Host: connectionHost,
                 Id: id,
             });
         }
@@ -53,6 +55,7 @@ function updateTable(data) {
             row.classList = "disconnected"
         }
         for (key in element) {
+            //loop through the element list until you find the id column, then add an edit button.
             if (key !== "Id") {
                 let cell = row.insertCell();
                 let text = document.createTextNode(element[key]);

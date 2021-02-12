@@ -27,7 +27,8 @@ namespace SyslogMonitor
 
             var customAttributes = currentType.GetMember(attribute.ToString()).FirstOrDefault().GetCustomAttributes(false);
 
-            return ((FileTypeAttribute)customAttributes.FirstOrDefault(n => n.GetType() == typeof(FileTypeAttribute)))
+            return ((FileTypeAttribute)customAttributes
+                .FirstOrDefault(n => n.GetType() == typeof(FileTypeAttribute)))
                 .GetFileType();
         }
     }

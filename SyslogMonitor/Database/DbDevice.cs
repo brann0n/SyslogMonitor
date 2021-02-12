@@ -26,5 +26,8 @@ namespace SyslogMonitor.Database
 
         [Column("lastupdated")]
         public DateTime LastUpdated { get; set; }
+
+        [Column("apname")]
+        public string APName { get; set; }
     }
 }

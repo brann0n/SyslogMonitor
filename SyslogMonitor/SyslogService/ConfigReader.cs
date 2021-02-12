@@ -15,6 +15,9 @@ namespace SyslogMonitor.SyslogService
 
         [JsonProperty("ip")]
         private string Ip { get; set; }
+        
+        [JsonProperty("host")]
+        private string Host { get; set; }
 
         [JsonProperty("port")]
         private int Port { get; set; }
@@ -29,7 +32,7 @@ namespace SyslogMonitor.SyslogService
             }
             else
             {
-                var config = new ConfigReader { Ip = "127.0.0.1", Port = 514, Display = true };
+                var config = new ConfigReader { Ip = "127.0.0.1", Port = 514, Display = true, Host = "127.0.0.1" };
                 Console.WriteLine("Config file not found, created a new one!");
                 File.WriteAllText(CONFIG_PATH, JsonConvert.SerializeObject(config));
                 return config;
@@ -41,5 +44,16 @@ namespace SyslogMonitor.SyslogService
         public int GetPort() => Port;
 
         public bool GetDisplay() => Display;
+
+        public string GetHost() {
+            if (string.IsNullOrEmpty(Host))
+            {
+                return Ip;
+            }
+            else
+            {
+                return Host;
+            }
+        }
     }
 }

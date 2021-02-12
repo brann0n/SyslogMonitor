@@ -15,6 +15,7 @@ namespace SyslogMonitor.ConnectionManager
         public string DeviceIp { get; set; }
         public bool DeviceConnected { get; set; }
         public DateTime LastUpdate { get; set; }
+        public string Host { get; set; }
         public override string ToString()
         {
             return $"Device {DeviceMac}: ({DeviceIp}) Connected = {DeviceConnected}, Since {LastUpdate:dd-MM-yyyy HH:mm:ss}";
@@ -29,7 +30,8 @@ namespace SyslogMonitor.ConnectionManager
                 DeviceIp = device.DeviceIp,
                 DeviceMac = device.DeviceMac,
                 DeviceName = device.Name,
-                LastUpdate = device.LastUpdated
+                LastUpdate = device.LastUpdated,
+                Host = device.APName
             };
         }
     }

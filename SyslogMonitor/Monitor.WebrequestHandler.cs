@@ -31,22 +31,7 @@ namespace SyslogMonitor
 
         private HttpResponseModel Devices()
         {
-            var deviceList = Manager.GetDevices();
-            StringBuilder builder = new StringBuilder();
-            builder.Append("<!DOCTYPE html><html><head><title>Wifi Devices</title><link href=\"/styles/index\" rel=\"stylesheet\"/></head><body>");
-            builder.Append("<table>");
-            builder.Append("<tr><th>Device Name</th><th>Device MAC</th><th>Device IP</th><th>Connected</th><th>Last Update</th></tr>");
-            foreach (var device in deviceList)
-            {
-                builder.Append($"<tr><td>{device.DeviceName}</td><td>{device.DeviceMac}</td><td>{device.DeviceIp}</td><td>{device.DeviceConnected}</td><td>{device.LastUpdate}</td></tr>");
-            }
-            builder.Append("</table></body></html>");
-            return new HttpResponseModel
-            {
-                StatusCode = 200,
-                ContentType = "text/html",
-                OutputStream = builder.ToString()
-            };
+            return Page("devices");
         }
 
         public HttpResponseModel ParseApiSegments(string[] urlSegments, string method, string api_key, string data)

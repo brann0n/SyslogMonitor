@@ -46,13 +46,13 @@ namespace SyslogMonitor.Database
         {
             if (await Database.Table<DbDevice>().Where(n => n.Id == device.DeviceId).CountAsync() < 1)
             {
-                await Database.InsertAsync(new DbDevice() {Id = device.DeviceId, DeviceMac = device.DeviceMac, Connected = device.DeviceConnected, DeviceIp = device.DeviceIp, Name = device.DeviceName, LastUpdated = device.LastUpdate});
+                await Database.InsertAsync(new DbDevice() {Id = device.DeviceId, DeviceMac = device.DeviceMac, Connected = device.DeviceConnected, DeviceIp = device.DeviceIp, Name = device.DeviceName, LastUpdated = device.LastUpdate, APName = device.Host});
             }
         }
 
         public async Task UpdateDeviceAsync(DeviceInfo device)
         {
-            var parsingDevice = new DbDevice() { Id = device.DeviceId, DeviceMac = device.DeviceMac, Connected = device.DeviceConnected, DeviceIp = device.DeviceIp, Name = device.DeviceName, LastUpdated = device.LastUpdate };
+            var parsingDevice = new DbDevice() { Id = device.DeviceId, DeviceMac = device.DeviceMac, Connected = device.DeviceConnected, DeviceIp = device.DeviceIp, Name = device.DeviceName, LastUpdated = device.LastUpdate, APName = device.Host };
             if(await Database.Table<DbDevice>().Where(n => n.Id  == parsingDevice.Id).CountAsync() == 1)
             {
                 await Database.UpdateAsync(parsingDevice);

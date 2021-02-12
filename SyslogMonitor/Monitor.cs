@@ -31,7 +31,7 @@ namespace SyslogMonitor
 
             new Thread(async delegate ()
             {
-                httpServer = new Server(Config.GetIp(), "http", 7000);
+                httpServer = new Server(Config.GetHost(), "http", 7000);
                 httpServer.OnRequest += HttpServer_OnRequest;
                 await httpServer.Listen();
             }).Start();
@@ -121,10 +121,10 @@ namespace SyslogMonitor
             switch (split.Last())
             {
                 case "connected":
-                    Manager.UpdateDeviceStatus(mac, true, Config.GetDisplay());
+                    Manager.UpdateDeviceStatus(mac, true, Config.GetDisplay(), rObject.IPAddress);
                     break;
                 case "disconnected":
-                    Manager.UpdateDeviceStatus(mac, false, Config.GetDisplay());
+                    Manager.UpdateDeviceStatus(mac, false, Config.GetDisplay(), rObject.IPAddress);
                     break;
                 default:
                     throw new Exception("Did not understand connection state.");
