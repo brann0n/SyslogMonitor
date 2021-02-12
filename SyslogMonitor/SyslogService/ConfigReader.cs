@@ -19,8 +19,11 @@ namespace SyslogMonitor.SyslogService
         [JsonProperty("host")]
         private string Host { get; set; }
 
-        [JsonProperty("port")]
-        private int Port { get; set; }
+        [JsonProperty("syslog-port")]
+        private int SyslogPort { get; set; }
+
+        [JsonProperty("webserver-port")]
+        private int WebserverPort { get; set; }
 
         [JsonProperty("display")]
         private bool Display { get; set; }
@@ -32,7 +35,7 @@ namespace SyslogMonitor.SyslogService
             }
             else
             {
-                var config = new ConfigReader { Ip = "127.0.0.1", Port = 514, Display = true, Host = "127.0.0.1" };
+                var config = new ConfigReader { Ip = "127.0.0.1", SyslogPort = 514, Display = true, Host = "127.0.0.1", WebserverPort = 7000};
                 Console.WriteLine("Config file not found, created a new one!");
                 File.WriteAllText(CONFIG_PATH, JsonConvert.SerializeObject(config));
                 return config;
@@ -41,7 +44,7 @@ namespace SyslogMonitor.SyslogService
 
         public string GetIp() => Ip;
 
-        public int GetPort() => Port;
+        public int GetSyslogPort() => SyslogPort;
 
         public bool GetDisplay() => Display;
 
@@ -55,5 +58,7 @@ namespace SyslogMonitor.SyslogService
                 return Host;
             }
         }
+
+        public int GetWebserverPort() => WebserverPort;
     }
 }

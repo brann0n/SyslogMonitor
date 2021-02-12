@@ -27,7 +27,7 @@ namespace SyslogMonitor.Webserver
 
             listener = new HttpListener();
             listener.Prefixes.Add($"{Protocol}://{Host}:{Port}/");
-            listener.Prefixes.Add($"http://localhost:{Port}/");
+            //listener.Prefixes.Add($"http://localhost:{Port}/");
             CancelSource = new CancellationTokenSource();
         }
 

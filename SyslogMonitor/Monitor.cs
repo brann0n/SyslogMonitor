@@ -25,13 +25,13 @@ namespace SyslogMonitor
         {
             Config = ConfigReader.GetConfig();
             Manager = new DeviceManager();
-            Listener = new SyslogListener(Config.GetIp(), Config.GetPort());
+            Listener = new SyslogListener(Config.GetIp(), Config.GetSyslogPort());
             Listener.ConnectionChanged += L_ConnectionChanged;
             DB = new DatabaseContext();
 
             new Thread(async delegate ()
             {
-                httpServer = new Server(Config.GetHost(), "http", 7000);
+                httpServer = new Server(Config.GetHost(), "http", Config.GetWebserverPort());
                 httpServer.OnRequest += HttpServer_OnRequest;
                 await httpServer.Listen();
             }).Start();
